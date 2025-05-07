@@ -9,6 +9,8 @@ namespace DungeonCrawl
 {
     internal class PlayerCharacter
     {
+        
+
         public string name;
         public int hitpoints;
         public int maxHitpoints;
@@ -102,8 +104,48 @@ namespace DungeonCrawl
             }
             return hitEnemy;
         }
-        
+        public static void DrawPlayer(PlayerCharacter character)
+        {
+            Console.SetCursorPosition((int)character.position.X, (int)character.position.Y);
+            Game.Print("@", ConsoleColor.White);
+        }
 
+        public static PlayerCharacter CreateCharacter()
+        {
+            PlayerCharacter character = new PlayerCharacter();
+            character.name = "";
+            character.hitpoints = 20;
+            character.maxHitpoints = character.hitpoints;
+            character.gold = 0;
+            character.weapon = null;
+            character.armor = null;
+            character.inventory = new List<Item>();
 
+            Console.Clear();
+            DrawBrickBg.DrawBackground();
+
+            // Draw entrance
+            Console.BackgroundColor = ConsoleColor.Black;
+            int doorHeight = (int)(Console.WindowHeight * (3.0f / 4.0f));
+            int doorY = Console.WindowHeight - doorHeight;
+            int doorWidth = (int)(Console.WindowWidth * (3.0f / 5.0f));
+            int doorX = Console.WindowWidth / 2 - doorWidth / 2;
+
+            DrawBrickBg.DrawRectangle(doorX, doorY, doorWidth, doorHeight, ConsoleColor.Black);
+            DrawBrickBg.DrawRectangleBorders(doorX + 1, doorY + 1, doorWidth - 2, doorHeight - 2, ConsoleColor.Blue, "|");
+            DrawBrickBg.DrawRectangleBorders(doorX + 3, doorY + 3, doorWidth - 6, doorHeight - 6, ConsoleColor.DarkBlue, "|");
+
+            Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2);
+            Game.Print("Welcome Brave Adventurer!");
+            Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2 + 1);
+            Game.Print("What is your name?", ConsoleColor.Yellow);
+            while (string.IsNullOrEmpty(character.name))
+            {
+                character.name = Console.ReadLine();
+            }
+            Game.Print($"Welcome {character.name}!", ConsoleColor.Yellow);
+
+            return character;
+        }
     }
 }

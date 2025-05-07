@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 
 namespace DungeonCrawl
 {
@@ -78,6 +73,54 @@ namespace DungeonCrawl
                         }
                     }
                 }
+            }
+        }
+        public static Monster CreateMonster(string name, int hitpoints, char symbol, ConsoleColor color, Vector2 position)
+        {
+            Monster monster = new Monster();
+            monster.name = name;
+            monster.hitpoints = hitpoints;
+            monster.symbol = symbol;
+            monster.color = color;
+            monster.position = position;
+            return monster;
+        }
+        public static Monster CreateRandomMonster(Random random, Vector2 position)
+        {
+            int type = random.Next(4);
+            return type switch
+            {
+                0 => Monster.CreateMonster("Goblin", 5, 'g', ConsoleColor.Green, position),
+                1 => Monster.CreateMonster("Bat Man", 2, 'M', ConsoleColor.Magenta, position),
+                2 => Monster.CreateMonster("Orc", 15, 'o', ConsoleColor.Red, position),
+                3 => Monster.CreateMonster("Bunny", 1, 'B', ConsoleColor.Yellow, position)
+            };
+        }
+        public static List<Monster> CreateEnemies(Map level, Random random)
+        {
+            List<Monster> monsters = new List<Monster>();
+
+            for (int y = 0; y < level.height; y++)
+            {
+                for (int x = 0; x < level.width; x++)
+                {
+                    int ti = y * level.width + x;
+                    if (level.Tiles[ti] == Map.Tile.Monster)
+                    {
+                        Monster m = CreateRandomMonster(random, new Vector2(x, y));
+                        monsters.Add(m);
+                        level.Tiles[ti] = (sbyte)Map.Tile.Floor;
+                    }
+                }
+            }
+            return monsters;
+        }
+        public static void DrawEnemies(List<Monster> enemies)
+        {
+            foreach (Monster m in enemies)
+            {
+                Console.SetCursorPosition((int)m.position.X, (int)m.position.Y);
+                Game.Print(m.symbol, m.color);
             }
         }
     }
