@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Numerics;
+using System.Xml.Serialization;
+using DungeonCrawl;
 
 namespace DungeonCrawl
 {
@@ -20,45 +22,6 @@ namespace DungeonCrawl
 		NextLevel,
 		BackToGame
 	}
-
-	internal class PlayerCharacter
-	{
-		public string name;
-		public int hitpoints;
-		public int maxHitpoints;
-		public Item weapon;
-		public Item armor;
-		public int gold;
-		public Vector2 position;
-		public List<Item> inventory;
-	}
-
-	internal class Map
-	{
-		public enum Tile : sbyte
-		{
-			Floor,
-			Wall,
-			Door,
-			Monster,
-			Item,
-			Player,
-			Stairs
-		}
-		public int width;
-		public int height;
-		public Tile[] Tiles;
-	}
-
-	internal class Monster
-	{
-		public string name;
-		public Vector2 position;
-		public int hitpoints;
-		public char symbol;
-		public ConsoleColor color;
-	}
-
 	internal enum ItemType
 	{
 		Weapon,
@@ -67,16 +30,10 @@ namespace DungeonCrawl
 		Treasure
 	}
 
-	internal class Item
-	{
-		public string name;
-		public int quality; // means different things depending on the type
-		public Vector2 position;
-		public ItemType type;
-	}
+	
 
 
-	internal class Program
+	internal class Game
 	{
 		const int INFO_HEIGHT = 6;
 		const int COMMANDS_WIDTH = 12;
@@ -90,9 +47,12 @@ namespace DungeonCrawl
 		const int ROOM_MIN_H = 4;
 		const int ROOM_MAX_H = 8;
 
+
 		static void Main(string[] args)
 		{
-			List<Monster> monsters = null;
+
+            PlayerCharacter playerCharacters = new PlayerCharacter();
+            List<Monster> monsters = null;
 			List<Item> items = null;
 			PlayerCharacter player = null;
 			Map currentLevel = null;
@@ -323,108 +283,50 @@ namespace DungeonCrawl
 			
 		}
 
-		/*
+        /*
 		 * Character functions
 		 */
-		static PlayerCharacter CreateCharacter()
-		{
-			PlayerCharacter character = new PlayerCharacter();
-			character.name = "";
-			character.hitpoints = 20;
-			character.maxHitpoints = character.hitpoints;
-			character.gold = 0;
-			character.weapon = null;
-			character.armor = null;
-			character.inventory = new List<Item>();
+        static PlayerCharacter CreateCharacter()
+        {
+            PlayerCharacter character = new PlayerCharacter();
+            character.name = "";
+            character.hitpoints = 20;
+            character.maxHitpoints = character.hitpoints;
+            character.gold = 0;
+            character.weapon = null;
+            character.armor = null;
+            character.inventory = new List<Item>();
 
-			Console.Clear();
-			DrawBrickBg();
+            Console.Clear();
+            DrawBrickBg();
 
-			// Draw entrance
-			Console.BackgroundColor = ConsoleColor.Black;
-			int doorHeight = (int)(Console.WindowHeight * (3.0f / 4.0f));
-			int doorY = Console.WindowHeight - doorHeight;
-			int doorWidth = (int)(Console.WindowWidth * (3.0f / 5.0f));
-			int doorX = Console.WindowWidth / 2 - doorWidth / 2;
+            // Draw entrance
+            Console.BackgroundColor = ConsoleColor.Black;
+            int doorHeight = (int)(Console.WindowHeight * (3.0f / 4.0f));
+            int doorY = Console.WindowHeight - doorHeight;
+            int doorWidth = (int)(Console.WindowWidth * (3.0f / 5.0f));
+            int doorX = Console.WindowWidth / 2 - doorWidth / 2;
 
-			DrawRectangle(doorX, doorY, doorWidth, doorHeight, ConsoleColor.Black);
-			DrawRectangleBorders(doorX + 1, doorY + 1, doorWidth - 2, doorHeight - 2, ConsoleColor.Blue, "|");
-			DrawRectangleBorders(doorX + 3, doorY + 3, doorWidth - 6, doorHeight - 6, ConsoleColor.DarkBlue, "|");
+            DrawRectangle(doorX, doorY, doorWidth, doorHeight, ConsoleColor.Black);
+            DrawRectangleBorders(doorX + 1, doorY + 1, doorWidth - 2, doorHeight - 2, ConsoleColor.Blue, "|");
+            DrawRectangleBorders(doorX + 3, doorY + 3, doorWidth - 6, doorHeight - 6, ConsoleColor.DarkBlue, "|");
 
-			Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2);
-			Print("Welcome Brave Adventurer!");
-			Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2 + 1);
-			Print("What is your name?", ConsoleColor.Yellow);
-			while (string.IsNullOrEmpty(character.name))
-			{
-				character.name = Console.ReadLine();
-			}
-			Print($"Welcome {character.name}!", ConsoleColor.Yellow);
+            Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2);
+            Print("Welcome Brave Adventurer!");
+            Console.SetCursorPosition(Console.WindowWidth / 2 - 8, Console.WindowHeight / 2 + 1);
+            Print("What is your name?", ConsoleColor.Yellow);
+            while (string.IsNullOrEmpty(character.name))
+            {
+                character.name = Console.ReadLine();
+            }
+            Print($"Welcome {character.name}!", ConsoleColor.Yellow);
 
-			return character;
-		}
+            return character;
+        }
 
-		static void GiveItem(PlayerCharacter character, Item item)
-		{
-			// Inventory order
-			// Weapons
-			// Armors
-			// Potions
-			switch (item.type)
-			{
-				case ItemType.Weapon:
-					if ((character.weapon != null && character.weapon.quality < item.quality)
-						|| character.weapon == null)
-					{
-						character.weapon = item;
-					}
-					character.inventory.Insert(0, item);
-					break;
-				case ItemType.Armor:
-					if ((character.armor != null && character.armor.quality < item.quality)
-						|| character.armor == null)
-					{
-						character.armor = item;
-					}
-					int armorIndex = 0;
-					while (armorIndex < character.inventory.Count && character.inventory[armorIndex].type == ItemType.Weapon)
-					{
-						armorIndex++;
-					}
-					character.inventory.Insert(armorIndex, item);
-					break;
-				case ItemType.Potion:
-					character.inventory.Add(item);
-					break;
-				case ItemType.Treasure:
-					character.gold += item.quality;
-					break;
-			}
+        
 
-		}
-
-		static int GetCharacterDamage(PlayerCharacter character)
-		{
-			if (character.weapon != null)
-			{
-				return character.weapon.quality;
-			}
-			else
-			{
-				return 1;
-			}
-		}
-		static int GetCharacterDefense(PlayerCharacter character)
-		{
-			if (character.armor != null)
-			{
-				return character.armor.quality;
-			}
-			else
-			{
-				return 0;
-			}
-		}
+		
 
 		static void UseItem(PlayerCharacter character, Item item, List<string> messages)
 		{
@@ -846,75 +748,6 @@ namespace DungeonCrawl
 			};
 			return PlayerTurnResult.BackToGame;
 		}
-
-		static int PositionToTileIndex(Vector2 position, Map level)
-		{
-			return (int)position.X + (int)position.Y * level.width;
-		}
-
-		static bool DoPlayerTurnVsEnemies(PlayerCharacter character, List<Monster> enemies, Vector2 destinationPlace, List<string> messages)
-		{
-			// Check enemies
-			bool hitEnemy = false;
-			Monster toRemoveMonster = null;
-			foreach (Monster enemy in enemies)
-			{
-				if (enemy.position == destinationPlace)
-				{
-					int damage = GetCharacterDamage(character);
-					messages.Add($"You hit {enemy.name} for {damage}!");
-					enemy.hitpoints -= damage;
-					hitEnemy = true;
-					if (enemy.hitpoints <= 0)
-					{
-						toRemoveMonster = enemy;
-					}
-				}
-			}
-			if (toRemoveMonster != null)
-			{
-				enemies.Remove(toRemoveMonster);
-			}
-			return hitEnemy;
-		}
-
-		static bool DoPlayerTurnVsItems(PlayerCharacter character, List<Item> items, Vector2 destinationPlace, List<string> messages)
-		{
-			// Check items
-			Item toRemoveItem = null;
-			foreach (Item item in items)
-			{
-				if (item.position == destinationPlace)
-				{
-					string itemMessage = $"You find a ";
-					switch (item.type)
-					{
-						case ItemType.Armor:
-							itemMessage += $"{item.name}, it fits you well";
-							break;
-						case ItemType.Weapon:
-							itemMessage += $"{item.name} to use in battle";
-							break;
-						case ItemType.Potion:
-							itemMessage += $"potion of {item.name}";
-							break;
-						case ItemType.Treasure:
-							itemMessage += $"valuable {item.name} and get {item.quality} gold!";
-							break;
-					};
-					messages.Add(itemMessage);
-					toRemoveItem = item;
-					GiveItem(character, item);
-					break;
-				}
-			}
-			if (toRemoveItem != null)
-			{
-				items.Remove(toRemoveItem);
-			}
-			return false;
-		}
-
 		static PlayerTurnResult DoPlayerTurn(Map level, PlayerCharacter character, List<Monster> enemies, List<Item> items, List<int> dirtyTiles, List<string> messages)
 		{
 			Vector2 playerMove = new Vector2(0, 0);
@@ -979,7 +812,7 @@ namespace DungeonCrawl
 				messages.Add("You hit a wall");
 			}
 			else if (destination == Map.Tile.Stairs)
-			{
+			{	
 				messages.Add("You find stairs leading down");
 				return PlayerTurnResult.NextLevel;
 			}
@@ -987,84 +820,11 @@ namespace DungeonCrawl
 			return PlayerTurnResult.TurnOver;
 		}
 
-		static Map.Tile GetTileAtMap(Map level, Vector2 position)
-		{
-			if (position.X >= 0 && position.X < level.width)
-			{
-				if (position.Y >= 0 && position.Y < level.height)
-				{
-					int ti = (int)position.Y * level.width + (int)position.X;
-					return (Map.Tile)level.Tiles[ti];
-				}
-			}
-			return Map.Tile.Wall;
-		}
+		
 
 		static int GetDistanceBetween(Vector2 A, Vector2 B)
 		{
 			return (int)Vector2.Distance(A, B);
-		}
-
-		static void ProcessEnemies(List<Monster> enemies, Map level, PlayerCharacter character, List<int> dirtyTiles, List<string> messages)
-		{
-			foreach (Monster enemy in enemies)
-			{
-
-				if (GetDistanceBetween(enemy.position, character.position) < 5)
-				{
-					Vector2 enemyMove = new Vector2(0, 0);
-
-					if (character.position.X < enemy.position.X)
-					{
-						enemyMove.X = -1;
-					}
-					else if (character.position.X > enemy.position.X)
-					{
-						enemyMove.X = 1;
-					}
-					else if (character.position.Y > enemy.position.Y)
-					{
-						enemyMove.Y = 1;
-					}
-					else if (character.position.Y < enemy.position.Y)
-					{
-						enemyMove.Y = -1;
-					}
-
-					int startTile = PositionToTileIndex(enemy.position, level);
-					Vector2 destinationPlace = enemy.position + enemyMove;
-					if (destinationPlace == character.position)
-					{
-						// TODO: Random change for armor to protect?
-						int damage = 1;
-						damage -= GetCharacterDefense(character);
-						if (damage <= 0)
-						{
-							damage = 1;
-						}
-						character.hitpoints -= damage;
-						messages.Add($"{enemy.name} hits you for {damage} damage!");
-					}
-					else
-					{
-						Map.Tile destination = GetTileAtMap(level, destinationPlace);
-						if (destination == Map.Tile.Floor)
-						{
-							enemy.position = destinationPlace;
-							dirtyTiles.Add(startTile);
-						}
-						else if (destination == Map.Tile.Door)
-						{
-							enemy.position = destinationPlace;
-							dirtyTiles.Add(startTile);
-						}
-						else if (destination == Map.Tile.Wall)
-						{
-							// NOP
-						}
-					}
-				}
-			}
 		}
 	}
 }
