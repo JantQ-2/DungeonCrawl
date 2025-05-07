@@ -23,7 +23,7 @@ namespace DungeonCrawl
         public int height;
         public Tile[] Tiles;
 
-        static Map.Tile GetTileAtMap(Map level, Vector2 position)
+        public static Map.Tile GetTileAtMap(Map level, Vector2 position)
         {
             if (position.X >= 0 && position.X < level.width)
             {

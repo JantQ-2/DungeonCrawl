@@ -127,7 +127,7 @@ namespace DungeonCrawl
 						// Either do computer turn or wait command again
 						// Do computer turn
 						// Process enemies
-						ProcessEnemies(monsters, currentLevel, player, dirtyTiles, messages);
+						Monster.ProcessEnemies(monsters, currentLevel, player, dirtyTiles, messages);
 
 						DrawInfo(player, monsters, items, messages);
 
@@ -568,7 +568,7 @@ namespace DungeonCrawl
 			}
 		}
 
-		static void DrawTile(byte x, byte y, Map.Tile tile)
+		public static void DrawTile(byte x, byte y, Map.Tile tile)
 		{
 			Console.SetCursorPosition(x, y);
 			switch (tile)
@@ -781,21 +781,21 @@ namespace DungeonCrawl
 				}
 			}
 
-			int startTile = PositionToTileIndex(character.position, level);
+			int startTile = Monster.PositionToTileIndex(character.position, level);
 			Vector2 destinationPlace = character.position + playerMove;
 
-			if (DoPlayerTurnVsEnemies(character, enemies, destinationPlace, messages))
+			if (PlayerCharacter.DoPlayerTurnVsEnemies(character, enemies, destinationPlace, messages))
 			{
 				return PlayerTurnResult.TurnOver;
 			}
 
-			if (DoPlayerTurnVsItems(character, items, destinationPlace, messages))
+			if (Item.DoPlayerTurnVsItems(character, items, destinationPlace, messages))
 			{
 				return PlayerTurnResult.TurnOver;
 			}
 
 			// Check movement
-			Map.Tile destination = GetTileAtMap(level, destinationPlace);
+			Map.Tile destination = Map.GetTileAtMap(level, destinationPlace);
 			if (destination == Map.Tile.Floor)
 			{
 				character.position = destinationPlace;
@@ -822,7 +822,7 @@ namespace DungeonCrawl
 
 		
 
-		static int GetDistanceBetween(Vector2 A, Vector2 B)
+		public static int GetDistanceBetween(Vector2 A, Vector2 B)
 		{
 			return (int)Vector2.Distance(A, B);
 		}

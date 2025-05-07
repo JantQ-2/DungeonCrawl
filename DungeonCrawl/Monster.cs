@@ -15,16 +15,16 @@ namespace DungeonCrawl
         public char symbol;
         public ConsoleColor color;
 
-        static int PositionToTileIndex(Vector2 position, Map level)
+        public static int PositionToTileIndex(Vector2 position, Map level)
         {
             return (int)position.X + (int)position.Y * level.width;
         }
-        static void ProcessEnemies(List<Monster> enemies, Map level, PlayerCharacter character, List<int> dirtyTiles, List<string> messages)
+        public static void ProcessEnemies(List<Monster> enemies, Map level, PlayerCharacter character, List<int> dirtyTiles, List<string> messages)
         {
             foreach (Monster enemy in enemies)
             {
 
-                if (GetDistanceBetween(enemy.position, character.position) < 5)
+                if (Game.GetDistanceBetween(enemy.position, character.position) < 5)
                 {
                     Vector2 enemyMove = new Vector2(0, 0);
 
@@ -61,7 +61,7 @@ namespace DungeonCrawl
                     }
                     else
                     {
-                        Map.Tile destination = Game.GetTileAtMap(level, destinationPlace);
+                        Map.Tile destination = Map.GetTileAtMap(level, destinationPlace);
                         if (destination == Map.Tile.Floor)
                         {
                             enemy.position = destinationPlace;
@@ -81,3 +81,4 @@ namespace DungeonCrawl
             }
         }
     }
+}
